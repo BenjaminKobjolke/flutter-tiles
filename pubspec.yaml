@@ -1,0 +1,20 @@
+name: flutter_tiles
+description: Reusable launcher tile grid and storage for Flutter apps.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.5.3
+  flutter_colorpicker: ^1.1.0
+  flutter_bloc: ^9.1.1
+  font_awesome_flutter: ^11.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
