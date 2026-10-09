@@ -49,6 +49,7 @@ void main() {
     WidgetTester tester, {
     required Color initialColor,
     required Future<void> Function(WidgetTester tester) interact,
+    ColorPickerMessageCallback? onMessage,
   }) async {
     Color? result;
     await tester.pumpWidget(
@@ -61,6 +62,7 @@ void main() {
                   context,
                   title: 'pick',
                   initialColor: initialColor,
+                  onMessage: onMessage,
                 );
               },
               child: const Text('open'),
@@ -74,6 +76,62 @@ void main() {
     await interact(tester);
     return result;
   }
+
+  testWidgets('host receives copied and invalid paste messages', (
+    tester,
+  ) async {
+    final messages = <(String, bool)>[];
+    clipboardText = 'invalid';
+    await openAndDrive(
+      tester,
+      initialColor: Colors.red,
+      onMessage: (context, message, {required isError}) =>
+          messages.add((message, isError)),
+      interact: (tester) async {
+        await tester.tap(find.byIcon(Icons.copy));
+        await tester.pump();
+        expect(find.byType(SnackBar), findsNothing);
+        await tester.tap(find.byIcon(Icons.content_paste));
+        await tester.pumpAndSettle();
+        expect(find.byType(SnackBar), findsNothing);
+        await tester.tap(dialogButtons().first);
+        await tester.pumpAndSettle();
+      },
+    );
+    expect(messages, [
+      ('Color copied to clipboard', false),
+      ('No valid hex color on clipboard', true),
+    ]);
+  });
+
+  testWidgets('default copy still shows snackbar', (tester) async {
+    clipboardText = 'invalid';
+    await openAndDrive(
+      tester,
+      initialColor: Colors.red,
+      interact: (tester) async {
+        await tester.tap(find.byIcon(Icons.copy));
+        await tester.pump();
+        expect(find.text('Color copied to clipboard'), findsOneWidget);
+        await tester.tap(dialogButtons().first);
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
+  testWidgets('default invalid paste still shows snackbar', (tester) async {
+    clipboardText = 'invalid';
+    await openAndDrive(
+      tester,
+      initialColor: Colors.red,
+      interact: (tester) async {
+        await tester.tap(find.byIcon(Icons.content_paste));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.text('No valid hex color on clipboard'), findsOneWidget);
+      },
+    );
+  });
 
   testWidgets('paste of #80FF0000 preserves alpha through Save', (
     tester,

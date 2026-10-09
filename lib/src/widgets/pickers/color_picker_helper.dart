@@ -3,6 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../../models/launcher_strings.dart';
 
+/// Lets the host display a color picker message in its own style.
+typedef ColorPickerMessageCallback =
+    void Function(
+      BuildContext context,
+      String message, {
+      required bool isError,
+    });
+
 /// Shared color picker dialog helper.
 ///
 /// Used across the app to avoid duplicating the AlertDialog+ColorPicker
@@ -14,11 +22,13 @@ class ColorPickerHelper {
   ///
   /// [title] is the translation key for the dialog title.
   /// [initialColor] is the pre-selected color.
+  /// [onMessage] replaces the built-in snackbar for copy and paste feedback.
   static Future<Color?> showColorPicker(
     BuildContext context, {
     required String title,
     required Color initialColor,
     LauncherStrings strings = const LauncherStrings(),
+    ColorPickerMessageCallback? onMessage,
   }) async {
     Color currentColor = initialColor;
 
@@ -32,6 +42,7 @@ class ColorPickerHelper {
             dialogContext: builderContext,
             currentColor: currentColor,
             strings: strings,
+            onMessage: onMessage,
             // Rebuild on every change so the copy button always reads the
             // live color (incl. alpha), not a stale captured value.
             onColorChanged: (color) =>
@@ -52,6 +63,7 @@ class ColorPickerHelper {
     required BuildContext dialogContext,
     required Color currentColor,
     required LauncherStrings strings,
+    required ColorPickerMessageCallback? onMessage,
     required ValueChanged<Color> onColorChanged,
   }) {
     return SingleChildScrollView(
@@ -63,6 +75,7 @@ class ColorPickerHelper {
             dialogContext: dialogContext,
             currentColor: currentColor,
             strings: strings,
+            onMessage: onMessage,
             onColorPasted: onColorChanged,
           ),
           ColorPicker(
@@ -82,6 +95,7 @@ class ColorPickerHelper {
     required BuildContext dialogContext,
     required Color currentColor,
     required LauncherStrings strings,
+    required ColorPickerMessageCallback? onMessage,
     required ValueChanged<Color> onColorPasted,
   }) {
     return Row(
@@ -97,9 +111,7 @@ class ColorPickerHelper {
               enableAlpha: true,
             );
             Clipboard.setData(ClipboardData(text: hex));
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(strings.colorCopied)));
+            _showMessage(context, strings.colorCopied, false, onMessage);
           },
         ),
         IconButton(
@@ -113,15 +125,28 @@ class ColorPickerHelper {
               onColorPasted(parsed);
             } else {
               if (context.mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(strings.invalidHex)));
+                _showMessage(context, strings.invalidHex, true, onMessage);
               }
             }
           },
         ),
       ],
     );
+  }
+
+  static void _showMessage(
+    BuildContext context,
+    String message,
+    bool isError,
+    ColorPickerMessageCallback? onMessage,
+  ) {
+    if (onMessage != null) {
+      onMessage(context, message, isError: isError);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   /// Builds the Cancel and Save action buttons.

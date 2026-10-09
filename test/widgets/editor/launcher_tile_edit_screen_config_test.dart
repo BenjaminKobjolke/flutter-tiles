@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tiles/flutter_tiles.dart';
 
@@ -49,6 +50,82 @@ void main() {
     await open(tester, const LauncherEditorConfig());
     expect(find.text('Settings'), findsNothing);
     expect(find.text('Return to launcher on back'), findsNothing);
+    final safeArea = tester.widget<SafeArea>(
+      find.ancestor(of: find.byType(Form), matching: find.byType(SafeArea)),
+    );
+    expect(safeArea.top, isFalse);
+  });
+
+  testWidgets('host wraps editor form without package safe area', (
+    tester,
+  ) async {
+    const hostKey = Key('host body');
+    await open(
+      tester,
+      LauncherEditorConfig(
+        bodyBuilder: (context, child) =>
+            KeyedSubtree(key: hostKey, child: child),
+      ),
+    );
+    expect(
+      tester.widget<Scaffold>(find.byType(Scaffold).last).body,
+      isA<KeyedSubtree>().having((body) => body.key, 'key', hostKey),
+    );
+    expect(
+      find.descendant(of: find.byKey(hostKey), matching: find.byType(Form)),
+      findsOneWidget,
+    );
+    expect(
+      find.ancestor(of: find.byType(Form), matching: find.byType(SafeArea)),
+      findsNothing,
+    );
+  });
+
+  testWidgets('editor pickers send copy and invalid paste to host', (
+    tester,
+  ) async {
+    const clipboardText = 'invalid';
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+          if (call.method == 'Clipboard.getData') {
+            return {'text': clipboardText};
+          }
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+    final messages = <(String, bool)>[];
+    await open(
+      tester,
+      LauncherEditorConfig(
+        onColorPickerMessage: (context, message, {required isError}) =>
+            messages.add((message, isError)),
+      ),
+    );
+    for (final label in [
+      'Pick Background Color',
+      'Pick Font Color',
+      'Pick Icon Color',
+    ]) {
+      await tester.ensureVisible(find.text(label));
+      await tester.tap(find.text(label));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.copy));
+      await tester.pump();
+      expect(messages.last, ('Color copied to clipboard', false));
+      expect(find.byType(SnackBar), findsNothing);
+      if (label == 'Pick Background Color') {
+        await tester.tap(find.byIcon(Icons.content_paste));
+        await tester.pumpAndSettle();
+        expect(messages.last, ('No valid hex color on clipboard', true));
+        expect(find.byType(SnackBar), findsNothing);
+      }
+      await tester.tap(find.widgetWithText(TextButton, 'Cancel').last);
+      await tester.pumpAndSettle();
+    }
+    expect(messages.length, 4);
   });
 
   testWidgets('host settings draft changes return on save', (tester) async {

@@ -8,6 +8,7 @@ export 'src/generated/font_awesome_all_icons.dart';
 export 'src/widgets/launcher_tile_widget.dart';
 export 'src/widgets/launcher_reorder_grid.dart';
 export 'src/widgets/launcher_view.dart';
+export 'src/widgets/launcher_empty_state.dart';
 export 'src/widgets/launcher_filter_field.dart';
 export 'src/widgets/pickers/color_picker_helper.dart';
 export 'src/widgets/pickers/icon_picker_dialog.dart';

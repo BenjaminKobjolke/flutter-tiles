@@ -2,6 +2,29 @@ import 'package:flutter/material.dart';
 
 import '../../models/launcher_strings.dart';
 import '../pickers/launcher_folder_picker_dialog.dart';
+import 'launcher_editor_config.dart';
+
+/// Uses the host body wrapper, or the editor's default safe area.
+Widget launcherEditorBody(
+  BuildContext context,
+  LauncherEditorConfig editor,
+  Widget child,
+) =>
+    editor.bodyBuilder?.call(context, child) ??
+    SafeArea(top: false, child: child);
+
+/// Builds the tile pin switch.
+Widget launcherPinSwitch(
+  LauncherStrings strings,
+  bool value,
+  ValueChanged<bool> onChanged,
+) => SwitchListTile(
+  contentPadding: EdgeInsets.zero,
+  secondary: const Icon(Icons.push_pin),
+  title: Text(strings.pinTile),
+  value: value,
+  onChanged: onChanged,
+);
 
 /// Builds the optional host editor section with the shared section heading.
 List<Widget> launcherSettingsSection(

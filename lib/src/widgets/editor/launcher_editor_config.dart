@@ -1,6 +1,11 @@
 import 'package:flutter/widgets.dart';
 
 import '../../models/launcher_entry.dart';
+import '../pickers/color_picker_helper.dart';
+
+/// Wraps the editor form with a host-provided scaffold body.
+typedef LauncherEditorBodyBuilder =
+    Widget Function(BuildContext context, Widget child);
 
 /// Mutable host-specific settings edited alongside a launcher tile.
 class LauncherTileSettingsDraft {
@@ -32,6 +37,12 @@ typedef LauncherTileSettingsBuilder =
 
 /// Optional host settings for the generic tile editor.
 class LauncherEditorConfig {
+  /// Wraps the editor body; the host owns safe-area handling when set.
+  final LauncherEditorBodyBuilder? bodyBuilder;
+
+  /// Shows color picker copy and paste messages through the host.
+  final ColorPickerMessageCallback? onColorPickerMessage;
+
   /// Builder for action-specific settings.
   final LauncherTileSettingsBuilder? settingsSectionBuilder;
 
@@ -40,6 +51,8 @@ class LauncherEditorConfig {
 
   /// Creates editor configuration.
   const LauncherEditorConfig({
+    this.bodyBuilder,
+    this.onColorPickerMessage,
     this.settingsSectionBuilder,
     this.showReturnToggle = false,
   });

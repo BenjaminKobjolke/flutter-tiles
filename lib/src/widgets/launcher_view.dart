@@ -36,6 +36,9 @@ class LauncherView extends StatelessWidget {
   /// Widget below the grid; receives the visible tile count.
   final Widget Function(BuildContext, int)? bottomBuilder;
 
+  /// Replaces the built-in empty state for each typed empty case.
+  final LauncherEmptyStateBuilder? emptyStateBuilder;
+
   /// Host-specific editor settings.
   final LauncherEditorConfig editor;
 
@@ -63,6 +66,7 @@ class LauncherView extends StatelessWidget {
     this.usageCounts = const {},
     this.filterQuery = '',
     this.bottomBuilder,
+    this.emptyStateBuilder,
     this.editor = const LauncherEditorConfig(),
     this.onTileTap,
     this.onExitReorder,
@@ -93,6 +97,11 @@ class LauncherView extends StatelessWidget {
     final visible = state.isReorderMode
         ? entries
         : LauncherFilter.apply(entries, filterQuery);
+    final emptyCase = entries.isNotEmpty
+        ? LauncherEmptyCase.noMatches
+        : state.openFolderId != null
+        ? LauncherEmptyCase.emptyFolder
+        : LauncherEmptyCase.noTiles;
     return SafeArea(
       top: false,
       child: Column(
@@ -107,11 +116,8 @@ class LauncherView extends StatelessWidget {
             ),
           Expanded(
             child: visible.isEmpty
-                ? LauncherEmptyState(
-                    strings: strings,
-                    insideFolder: state.openFolderId != null,
-                    hasEntries: entries.isNotEmpty,
-                  )
+                ? emptyStateBuilder?.call(context, emptyCase) ??
+                      LauncherEmptyState(strings: strings, emptyCase: emptyCase)
                 : state.isReorderMode
                 ? LauncherReorderGrid(
                     state: state,

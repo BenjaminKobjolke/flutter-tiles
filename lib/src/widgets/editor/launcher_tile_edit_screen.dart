@@ -179,6 +179,7 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
       title: title,
       initialColor: initial,
       strings: widget.strings,
+      onMessage: widget.editor.onColorPickerMessage,
     );
     if (color != null && mounted) setState(() => apply(color));
   }
@@ -224,9 +225,10 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
             TextButton(onPressed: _save, child: Text(widget.strings.save)),
           ],
         ),
-        body: SafeArea(
-          top: false,
-          child: Form(
+        body: launcherEditorBody(
+          context,
+          widget.editor,
+          Form(
             key: _formKey,
             child: ListView(
               padding: const EdgeInsets.all(16),
@@ -280,12 +282,10 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
                     onChanged: (v) =>
                         setState(() => _returnToLauncherOnBack = v),
                   ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  secondary: const Icon(Icons.push_pin),
-                  title: Text(widget.strings.pinTile),
-                  value: _pinned,
-                  onChanged: (v) => setState(() => _pinned = v),
+                launcherPinSwitch(
+                  widget.strings,
+                  _pinned,
+                  (v) => setState(() => _pinned = v),
                 ),
                 launcherMoveRow(_move, widget.strings, _pickMoveTarget),
                 const SizedBox(height: 24),

@@ -46,6 +46,7 @@ void main() {
     VoidCallback? onBackgroundLongPress,
     VoidCallback? onExitReorder,
     ValueChanged<int>? onCount,
+    LauncherEmptyStateBuilder? emptyStateBuilder,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -54,6 +55,7 @@ void main() {
             value: cubit,
             child: LauncherView(
               filterQuery: query,
+              emptyStateBuilder: emptyStateBuilder,
               onTileTap: onTap,
               onTileUpdated: onUpdated,
               onTileDeleted: onDeleted,
@@ -69,6 +71,69 @@ void main() {
       ),
     );
   }
+
+  Future<void> expectHostEmpty(
+    WidgetTester tester,
+    LauncherEmptyCase expected, {
+    String query = '',
+  }) async {
+    final cases = <LauncherEmptyCase>[];
+    await showView(
+      tester,
+      query: query,
+      emptyStateBuilder: (context, emptyCase) {
+        cases.add(emptyCase);
+        return const Text('host empty');
+      },
+    );
+    await tester.pump();
+    expect(cases, contains(expected));
+    expect(find.text('host empty'), findsOneWidget);
+    expect(find.byType(LauncherEmptyState), findsNothing);
+    expect(find.text('Bottom slot'), findsOneWidget);
+  }
+
+  testWidgets('host empty builder receives no tiles', (tester) async {
+    await store.setEntries([]);
+    cubit.loadEntries();
+    await expectHostEmpty(tester, LauncherEmptyCase.noTiles);
+  });
+
+  testWidgets('host empty builder receives empty folder', (tester) async {
+    cubit.openFolder('albums');
+    await expectHostEmpty(tester, LauncherEmptyCase.emptyFolder);
+  });
+
+  testWidgets('host empty builder receives no matches', (tester) async {
+    await expectHostEmpty(
+      tester,
+      LauncherEmptyCase.noMatches,
+      query: 'missing',
+    );
+  });
+
+  testWidgets('default empty states retain their icons and titles', (
+    tester,
+  ) async {
+    await store.setEntries([]);
+    cubit.loadEntries();
+    await showView(tester);
+    await tester.pump();
+    expect(find.text('No tiles'), findsOneWidget);
+    expect(find.byIcon(Icons.dashboard), findsOneWidget);
+    await store.setEntries([camera, albums]);
+    cubit.loadEntries();
+    await tester.pump();
+    cubit.openFolder('albums');
+    await tester.pump();
+    expect(find.text('Empty folder'), findsOneWidget);
+    expect(find.byIcon(Icons.folder_open), findsOneWidget);
+    cubit.closeFolder();
+    await showView(tester, query: 'missing');
+    await tester.pump();
+    expect(find.text('No tiles'), findsOneWidget);
+    expect(find.byIcon(Icons.search_off), findsOneWidget);
+  });
 
   testWidgets('pinned sort, tap, filter, empty state and bottom slot', (
     tester,

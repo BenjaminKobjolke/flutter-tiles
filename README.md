@@ -44,6 +44,12 @@ BlocProvider.value(
 
 `handleTileAction` is your app's action handler. Close the cubit when its owning screen is disposed. Call `cubit.closeFolder()` from your app's back navigation when a folder is open. The package reports folder taps to `onTileTap`; the host chooses when to open one.
 
+Optional host hooks let you keep your app's presentation:
+
+- `LauncherEditorConfig.bodyBuilder` wraps the editor body; the host owns safe-area handling when set.
+- `ColorPickerHelper.showColorPicker(onMessage:)` and `LauncherEditorConfig.onColorPickerMessage` show copy/paste feedback through the host; `isError` distinguishes invalid paste from successful copy.
+- `LauncherView.emptyStateBuilder` builds the empty view for `LauncherEmptyCase.noTiles`, `emptyFolder`, or `noMatches`.
+
 ## Host inputs
 
 | Input | What the host controls |
@@ -52,7 +58,8 @@ BlocProvider.value(
 | `LauncherStrings` | Text shown by the grid, dialogs, editor, and pickers; English defaults are built in. |
 | `LauncherSort`, `usageCounts` | Display order and counts for most-used sorting. Pinning takes precedence. |
 | `filterQuery`, `bottomBuilder` | Name filter and a bottom widget; the builder receives the visible tile count. The included `LauncherFilterField` is optional. |
-| `LauncherEditorConfig` | Optional host settings section and the return-to-launcher switch. |
+| `LauncherEditorConfig` | Optional host settings section, return-to-launcher switch, editor `bodyBuilder`, and `onColorPickerMessage`. |
+| `emptyStateBuilder` | Host empty state for top-level emptiness, an empty folder, or no filter matches. |
 | `onTileTap` | Action for regular tiles and folder tiles; folder opening is a host job. |
 | `onExitReorder`, `onBackgroundLongPress`, `onTileUpdated`, `onTileDeleted` | Host navigation and feedback hooks. |
 
