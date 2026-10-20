@@ -22,6 +22,9 @@ class LauncherEntry {
   /// User-visible tile label.
   final String label;
 
+  /// Optional second line shown under [label], e.g. the owning project.
+  final String? subtitle;
+
   /// Action type string (e.g. "openFolder", "takePhoto", "recordVideo", "openFile").
   final String action;
 
@@ -85,6 +88,7 @@ class LauncherEntry {
     required this.id,
     required this.folderPath,
     required this.label,
+    this.subtitle,
     required this.action,
     this.filePath,
     required this.iconName,
@@ -106,6 +110,7 @@ class LauncherEntry {
       id: map['id'] as String,
       folderPath: map['folderPath'] as String,
       label: map['label'] as String,
+      subtitle: map['subtitle'] as String?,
       action: map['action'] as String,
       filePath: map['filePath'] as String?,
       iconName: map['iconName'] as String,
@@ -126,9 +131,7 @@ class LauncherEntry {
 
   /// Creates a [LauncherEntry] from a JSON string.
   factory LauncherEntry.fromJson(String source) {
-    return LauncherEntry.fromMap(
-      jsonDecode(source) as Map<String, dynamic>,
-    );
+    return LauncherEntry.fromMap(jsonDecode(source) as Map<String, dynamic>);
   }
 
   /// Serializes this entry to a JSON-compatible map.
@@ -137,6 +140,8 @@ class LauncherEntry {
       'id': id,
       'folderPath': folderPath,
       'label': label,
+      // Only persisted when set.
+      if (subtitle != null) 'subtitle': subtitle,
       'action': action,
       'filePath': filePath,
       'iconName': iconName,
@@ -164,6 +169,7 @@ class LauncherEntry {
     String? id,
     String? folderPath,
     String? label,
+    String? subtitle,
     String? action,
     String? filePath,
     String? iconName,
@@ -183,6 +189,7 @@ class LauncherEntry {
       id: id ?? this.id,
       folderPath: folderPath ?? this.folderPath,
       label: label ?? this.label,
+      subtitle: subtitle ?? this.subtitle,
       action: action ?? this.action,
       filePath: filePath ?? this.filePath,
       iconName: iconName ?? this.iconName,

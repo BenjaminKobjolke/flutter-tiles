@@ -63,6 +63,28 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('tile semantics include a subtitle', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 120,
+            height: 120,
+            child: LauncherTileWidget(
+              entry: tile.copyWith(subtitle: 'Thumbkey'),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(
+      tester.getSemantics(find.byType(LauncherTileWidget)),
+      matchesSemantics(label: 'Camera, Thumbkey', isButton: true),
+    );
+    handle.dispose();
+  });
+
   testWidgets('folder semantics include child count', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(

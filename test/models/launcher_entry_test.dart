@@ -46,6 +46,21 @@ void main() {
       expect(map['createdAtMs'], equals(1700000000000));
     });
 
+    test('toMap omits subtitle when null', () {
+      expect(testEntry.toMap().containsKey('subtitle'), isFalse);
+    });
+
+    test('toMap/fromMap roundtrip preserves subtitle', () {
+      final entry = testEntry.copyWith(subtitle: 'Thumbkey');
+      final restored = LauncherEntry.fromMap(entry.toMap());
+
+      expect(restored.subtitle, equals('Thumbkey'));
+    });
+
+    test('fromMap without subtitle defaults to null', () {
+      expect(LauncherEntry.fromMap(testEntry.toMap()).subtitle, isNull);
+    });
+
     test('toMap includes filePath when set', () {
       // Act
       final map = testEntryWithFile.toMap();
@@ -241,6 +256,16 @@ void main() {
       expect(updated.fontColor, equals(0xFFFF0000));
       expect(updated.iconColor, equals(0xFF00FF00));
       expect(updated.backgroundColor, equals(testEntry.backgroundColor));
+    });
+
+    test('copyWith keeps and replaces subtitle', () {
+      final original = testEntry.copyWith(subtitle: 'Thumbkey');
+
+      expect(original.copyWith().subtitle, equals('Thumbkey'));
+      expect(
+        original.copyWith(subtitle: 'Other project').subtitle,
+        equals('Other project'),
+      );
     });
   });
 

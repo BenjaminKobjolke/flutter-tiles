@@ -67,7 +67,7 @@ Use `LauncherCubit.addEntry` to add a tile. Long-press a tile to edit its name, 
 
 ## Storage
 
-`LauncherStore` saves a JSON list in `SharedPreferences`. Its default key is `launcher_entries`, matching the Media File Explorer launcher and its backup format. Set `key` to another value to keep an app's tiles separate, as the example does with `example_tiles`. Entry field names and their stored JSON format remain compatible with the existing app. The package does not choose what an entry's `action` string means.
+`LauncherStore` saves a JSON list in `SharedPreferences`. Its default key is `launcher_entries`, matching the Media File Explorer launcher and its backup format. Set `key` to another value to keep an app's tiles separate, as the example does with `example_tiles`. Entry field names and their stored JSON format remain compatible with the existing app. The optional `subtitle` shows a second, smaller line under the label and is only stored when set. The package does not choose what an entry's `action` string means.
 
 ## Run and test
 

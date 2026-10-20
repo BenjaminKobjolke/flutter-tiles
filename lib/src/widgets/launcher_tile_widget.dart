@@ -124,12 +124,17 @@ class _LauncherTileWidgetState extends State<LauncherTileWidget> {
 
   /// Label + folder item count for TalkBack (badge digits alone are meaningless).
   String _semanticLabel(LauncherEntry entry) {
-    if (!entry.isFolder || widget.folderChildCount == 0) return entry.label;
-    final count = widget.strings.folderItemCount.replaceFirst(
-      '{count}',
-      widget.folderChildCount.toString(),
-    );
-    return '${entry.label}, $count';
+    final subtitle = entry.subtitle;
+    var label = entry.label;
+    if (subtitle != null && subtitle.isNotEmpty) label += ', $subtitle';
+    if (entry.isFolder && widget.folderChildCount > 0) {
+      final count = widget.strings.folderItemCount.replaceFirst(
+        '{count}',
+        widget.folderChildCount.toString(),
+      );
+      label += ', $count';
+    }
+    return label;
   }
 
   /// Builds the icon + label column that fills the tile.
@@ -138,6 +143,8 @@ class _LauncherTileWidgetState extends State<LauncherTileWidget> {
     double labelSize,
     Uint8List? iconBytes,
   ) {
+    final subtitle = entry.subtitle;
+    final hasSubtitle = subtitle != null && subtitle.isNotEmpty;
     final showFolderCountBadge =
         entry.isFolder &&
         widget.folderChildCount > 0 &&
@@ -195,6 +202,20 @@ class _LauncherTileWidgetState extends State<LauncherTileWidget> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        if (hasSubtitle)
+          SizedBox(
+            height: labelSize * 0.75 * 1.2 + 2,
+            child: Text(
+              subtitle,
+              style: TextStyle(
+                color: Color(entry.fontColor).withValues(alpha: 0.7),
+                fontSize: labelSize * 0.75,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
       ],
     );
   }

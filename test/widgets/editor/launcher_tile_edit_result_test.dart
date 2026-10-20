@@ -15,6 +15,7 @@ void main() {
     createdAtMs: 7,
     extras: {'x': 'y'},
     customIconBase64: 'bitmap',
+    subtitle: 'Thumbkey',
     parentId: 'old',
   );
 
@@ -61,6 +62,7 @@ void main() {
       extras: {'a': 'b'},
     ).applyTo(entry);
     expect(updated.customIconBase64, isNull);
+    expect(updated.subtitle, 'Thumbkey');
     expect(updated.folderPath, '/new');
     expect(updated.filePath, '/new-file');
     expect(updated.extras, {'a': 'b'});

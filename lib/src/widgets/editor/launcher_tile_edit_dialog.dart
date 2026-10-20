@@ -89,6 +89,7 @@ class LauncherTileEditResult {
             id: base.id,
             folderPath: base.folderPath,
             label: base.label,
+            subtitle: base.subtitle,
             action: base.action,
             filePath: base.filePath,
             iconName: base.iconName,
