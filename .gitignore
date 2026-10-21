@@ -9,6 +9,7 @@ graphify-out/
 tmp/commit_msg.tmp
 code_analysis_results/
 .reasonix/
+coding-rules.json
 .dart_tool/
 build/
 .fvm/
