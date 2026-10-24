@@ -29,3 +29,15 @@ for that run; without such an instruction, `CODING_RULES.md` stays binding in fu
 
 Do not inline rules back into this file and do not use `@import` for either file —
 they are intentionally referenced, not imported.
+
+## Code Analysis
+
+After implementing a feature, finishing a plan, or fixing a bug, run the changed-files analyzer and fix reported issues before considering the work complete:
+
+```powershell
+cmd /c '.\tools\analyze_changed_and_new_files.bat'
+```
+
+This uses `--only-changed` to report findings in files new or modified against Git `HEAD`.
+Run `tools/analyze_code.bat` for a full project audit, before a release or merge, or after a refactor that touches shared code.
+Analyzer reports are per-rule CSV files in `code_analysis_results/`; a missing CSV means that rule found no issues.
