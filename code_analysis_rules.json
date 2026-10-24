@@ -31,7 +31,7 @@
     "exclude_patterns": ["*.g.dart", "*.freezed.dart"],
     "include_test_imports": false
   },
-  "dart_unused_dependencies": {"enabled": true, "check_dev_dependencies": true, "severity": "warning", "ignore_packages": ["flutter", "flutter_test", "flutter_lints"]},
+  "dart_unused_dependencies": {"enabled": true, "check_dev_dependencies": true, "severity": "warning", "ignore_packages": ["flutter", "flutter_test", "flutter_lints", "dart_code_linter"]},
   "dart_import_rules": {"enabled": false, "analyze_path": "lib", "exclude_patterns": ["*.g.dart", "*.freezed.dart"], "forbidden_imports": []},
   "dart_unused_code": {"enabled": false, "analyze_path": "lib", "exclude_patterns": ["*.g.dart", "*.freezed.dart"], "ignore_names": ["main", "build"], "scan_test_references": true, "severity": "warning"},
   "dart_missing_dispose": {"enabled": false, "analyze_path": "lib", "exclude_patterns": ["*.g.dart", "*.freezed.dart"], "severity": "warning"},
