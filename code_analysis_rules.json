@@ -5,7 +5,7 @@
     "enabled": true,
     "warning": 300,
     "error": 500,
-    "exclude_paths": [".git", ".dart_tool", ".fvm", "build", "code_analysis_results", "android", "ios", "linux", "macos", "web", "windows"],
+    "exclude_paths": [".git", ".dart_tool", ".fvm", "build", "code_analysis_results", "android", "ios", "linux", "macos", "web", "windows", "lib/src/generated"],
     "exclude_patterns": ["*.g.dart", "*.freezed.dart", "*.mocks.dart", "*.gr.dart"]
   },
   "pmd_duplicates": {
@@ -21,7 +21,20 @@
     "auto_install": false,
     "analyze_path": "lib",
     "keep_report": false,
-    "metrics": {"cyclomatic-complexity": {"warning": 10, "error": 15}}
+    "metrics": {
+      "cyclomatic-complexity": {
+        "warning": 10,
+        "error": 15,
+        "exceptions": [
+          {
+            "file": "lib/src/models/launcher_entry.dart",
+            "warning": 10,
+            "error": 25,
+            "reason": "Hand-written copyWith of an 18-field model: one ?? per field, flat boilerplate. Lowering it means breaking the public copyWith API or hiding the ?? to game the metric."
+          }
+        ]
+      }
+    }
   },
   "flutter_analyze": {"enabled": false, "exclude_patterns": ["*.g.dart", "*.freezed.dart"]},
   "dart_unused_files": {
