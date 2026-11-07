@@ -21,6 +21,7 @@ void main() {
 
   LauncherTileEditResult result({
     bool clearCustomIcon = false,
+    String? customIconBase64,
     LauncherFolderPick? move,
     String? folderPath,
     String? filePath,
@@ -34,6 +35,7 @@ void main() {
     iconColor: Colors.blue,
     pinned: true,
     clearCustomIcon: clearCustomIcon,
+    customIconBase64: customIconBase64,
     move: move,
     folderPath: folderPath,
     filePath: filePath,
@@ -66,6 +68,11 @@ void main() {
     expect(updated.folderPath, '/new');
     expect(updated.filePath, '/new-file');
     expect(updated.extras, {'a': 'b'});
+  });
+
+  test('applies a newly loaded custom bitmap', () {
+    final updated = result(customIconBase64: 'new').applyTo(entry);
+    expect(updated.customIconBase64, 'new');
   });
 
   test('staged move enters a folder or returns to root', () {

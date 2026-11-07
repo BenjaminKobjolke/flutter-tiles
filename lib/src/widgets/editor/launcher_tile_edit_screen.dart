@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../models/launcher_entry.dart';
@@ -6,9 +8,10 @@ import '../../models/launcher_strings.dart';
 import '../../utils/launcher_icon_decoder.dart';
 import '../launcher_tile_widget.dart';
 import '../pickers/color_picker_helper.dart';
-import '../pickers/icon_picker_dialog.dart';
+import '../pickers/icon_picker_helper.dart';
 import '../pickers/launcher_folder_picker_dialog.dart';
 import 'launcher_editor_config.dart';
+import 'launcher_custom_icon_button.dart';
 import 'launcher_return_toggle.dart';
 import 'launcher_tile_edit_dialog.dart';
 import 'launcher_tile_edit_controls.dart';
@@ -53,6 +56,10 @@ class LauncherTileEditScreen extends StatefulWidget {
 class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
   late final TextEditingController _nameController;
   late final LauncherTileSettingsDraft _draft;
+  late final LauncherCustomIconSource? _customIconSource = widget
+      .editor
+      .customIconSource
+      ?.call(widget.entry);
   Widget? _settingsEditor;
   late IconData _selectedIcon;
   late String _selectedIconName;
@@ -69,11 +76,7 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.entry.label);
-    _draft = LauncherTileSettingsDraft(
-      folderPath: widget.entry.folderPath,
-      filePath: widget.entry.filePath,
-      extras: widget.entry.extras,
-    );
+    _draft = LauncherTileSettingsDraft.fromEntry(widget.entry);
     _selectedIcon = LauncherTileWidget.resolveIcon(widget.entry.iconName);
     _selectedIconName = widget.entry.iconName;
     _selectedColor = Color(widget.entry.backgroundColor);
@@ -121,15 +124,8 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
       strings: widget.strings,
     );
     if (!mounted) return;
-    switch (choice) {
-      case LauncherTileLeaveChoice.save:
-        _save();
-      case LauncherTileLeaveChoice.discard:
-        Navigator.of(context).pop();
-      case LauncherTileLeaveChoice.cancel:
-      case null:
-        break;
-    }
+    if (choice == LauncherTileLeaveChoice.save) _save();
+    if (choice == LauncherTileLeaveChoice.discard) Navigator.of(context).pop();
   }
 
   void _save() {
@@ -146,6 +142,10 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
         clearCustomIcon:
             widget.entry.customIconBase64 != null &&
             _selectedCustomIconBase64 == null,
+        customIconBase64:
+            _selectedCustomIconBase64 == widget.entry.customIconBase64
+            ? null
+            : _selectedCustomIconBase64,
         returnToLauncherOnBack: _returnToLauncherOnBack,
         pinned: _pinned,
         folderPath: _settingsEditor != null ? _draft.folderPath : null,
@@ -156,59 +156,50 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
     );
   }
 
-  Future<void> _pickMoveTarget() async {
-    final pick = await LauncherFolderPickerDialog.show(
-      context,
-      allEntries: widget.allEntries,
-      strings: widget.strings,
-      highlightColor: widget.style.highlightColor,
-      // A folder must not be offered itself or its subtree as a destination.
-      excludeFolderId: widget.entry.isFolder ? widget.entry.id : null,
-    );
-    if (pick == null || !mounted) return;
-    setState(() => _move = pick);
-  }
+  Future<void> _pickMoveTarget() => LauncherFolderPickerDialog.showAndApply(
+    context,
+    allEntries: widget.allEntries,
+    strings: widget.strings,
+    highlightColor: widget.style.highlightColor,
+    excludeFolderId: widget.entry.isFolder ? widget.entry.id : null,
+    onPicked: (pick) => setState(() => _move = pick),
+  );
 
   Future<void> _pickColor(
     String title,
     Color initial,
     ValueChanged<Color> apply,
-  ) async {
-    final color = await ColorPickerHelper.showColorPicker(
-      context,
-      title: title,
-      initialColor: initial,
-      strings: widget.strings,
-      onMessage: widget.editor.onColorPickerMessage,
-    );
-    if (color != null && mounted) setState(() => apply(color));
-  }
+  ) => ColorPickerHelper.pickAndApply(
+    context,
+    title: title,
+    initialColor: initial,
+    strings: widget.strings,
+    onMessage: widget.editor.onColorPickerMessage,
+    onPicked: (color) => setState(() => apply(color)),
+  );
 
-  Future<void> _pickIcon() async {
-    final result = await showDialog<IconPickerResult>(
-      context: context,
-      builder: (context) => IconPickerDialog(
-        initialIcon: _selectedIcon,
-        highlightColor: widget.style.highlightColor,
-        strings: widget.strings,
-      ),
-    );
+  Future<void> _pickIcon() => IconPickerHelper.showAndApply(
+    context,
+    initialIcon: _selectedIcon,
+    highlightColor: widget.style.highlightColor,
+    strings: widget.strings,
+    onPicked: (result) => setState(() {
+      _selectedIcon = result.iconData;
+      _selectedIconName = result.name;
+      // Selecting a built-in icon replaces the external bitmap.
+      _selectedCustomIconBase64 = null;
+      _decodedCustomIcon = null;
+    }),
+  );
 
-    if (result != null && mounted) {
-      setState(() {
-        _selectedIcon = result.iconData;
-        _selectedIconName = result.name;
-        // User picked a Font Awesome icon — drop any external bitmap so the
-        // tile re-renders from the new glyph.
-        _selectedCustomIconBase64 = null;
-        _decodedCustomIcon = null;
-      });
-    }
-  }
+  void _setCustomIcon(Uint8List bytes) => setState(() {
+    _decodedCustomIcon = bytes;
+    _selectedCustomIconBase64 = base64Encode(bytes);
+  });
 
   Future<void> _confirmDelete() async {
-    final confirmed = await confirmLauncherDelete(context, widget.strings);
-    if (confirmed == true && mounted) {
+    if (await confirmLauncherDelete(context, widget.strings) == true &&
+        mounted) {
       Navigator.of(context).pop(const DeleteSentinel());
     }
   }
@@ -258,6 +249,13 @@ class _LauncherTileEditScreenState extends State<LauncherTileEditScreen> {
                 LauncherTilePickerButtons(
                   strings: widget.strings,
                   onIcon: _pickIcon,
+                  customIconButton: _customIconSource == null
+                      ? null
+                      : LauncherCustomIconButton(
+                          source: _customIconSource!,
+                          draft: _draft,
+                          onLoaded: _setCustomIcon,
+                        ),
                   onBackgroundColor: () => _pickColor(
                     widget.strings.pickBackgroundColor,
                     _selectedColor,

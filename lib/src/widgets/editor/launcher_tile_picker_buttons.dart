@@ -10,6 +10,9 @@ class LauncherTilePickerButtons extends StatelessWidget {
   /// Icon picker action.
   final VoidCallback onIcon;
 
+  /// Optional host action for loading a custom bitmap icon.
+  final Widget? customIconButton;
+
   /// Background picker action.
   final VoidCallback onBackgroundColor;
 
@@ -24,6 +27,7 @@ class LauncherTilePickerButtons extends StatelessWidget {
     super.key,
     required this.strings,
     required this.onIcon,
+    this.customIconButton,
     required this.onBackgroundColor,
     required this.onFontColor,
     required this.onIconColor,
@@ -38,6 +42,10 @@ class LauncherTilePickerButtons extends StatelessWidget {
         icon: const Icon(Icons.palette),
         label: Text(strings.pickIcon),
       ),
+      if (customIconButton != null) ...[
+        const SizedBox(height: 8),
+        customIconButton!,
+      ],
       const SizedBox(height: 8),
       OutlinedButton.icon(
         onPressed: onBackgroundColor,

@@ -48,7 +48,22 @@ Optional host hooks let you keep your app's presentation:
 
 - `LauncherEditorConfig.bodyBuilder` wraps the editor body; the host owns safe-area handling when set.
 - `ColorPickerHelper.showColorPicker(onMessage:)` and `LauncherEditorConfig.onColorPickerMessage` show copy/paste feedback through the host; `isError` distinguishes invalid paste from successful copy.
+- `LauncherEditorConfig.customIconSource` can add a translated host action that loads a tile's custom PNG icon using the current settings draft.
 - `LauncherView.emptyStateBuilder` builds the empty view for `LauncherEmptyCase.noTiles`, `emptyFolder`, or `noMatches`.
+
+For example, a host can offer icon loading only for web-page tiles. The label is supplied by the host's translation layer; returning `null` from `load` leaves the current icon unchanged.
+
+```dart
+LauncherEditorConfig(
+  customIconSource: (entry) => entry.action == 'openWebPage'
+      ? LauncherCustomIconSource(
+          label: translatedGetIconLabel,
+          icon: Icons.download,
+          load: (context, draft) => fetchPageIcon(draft.extras['url']),
+        )
+      : null,
+)
+```
 
 ## Host inputs
 
@@ -58,7 +73,7 @@ Optional host hooks let you keep your app's presentation:
 | `LauncherStrings` | Text shown by the grid, dialogs, editor, and pickers; English defaults are built in. |
 | `LauncherSort`, `usageCounts` | Display order and counts for most-used sorting. Pinning takes precedence. |
 | `filterQuery`, `bottomBuilder` | Name filter and a bottom widget; the builder receives the visible tile count. The included `LauncherFilterField` is optional. |
-| `LauncherEditorConfig` | Optional host settings section, return-to-launcher switch, editor `bodyBuilder`, and `onColorPickerMessage`. |
+| `LauncherEditorConfig` | Optional host settings section, return-to-launcher switch, editor `bodyBuilder`, `onColorPickerMessage`, and per-entry `customIconSource`. |
 | `emptyStateBuilder` | Host empty state for top-level emptiness, an empty folder, or no filter matches. |
 | `onTileTap` | Action for regular tiles and folder tiles; folder opening is a host job. |
 | `onExitReorder`, `onBackgroundLongPress`, `onTileUpdated`, `onTileDeleted` | Host navigation and feedback hooks. |

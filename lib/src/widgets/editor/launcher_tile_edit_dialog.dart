@@ -30,6 +30,9 @@ class LauncherTileEditResult {
   /// `false` means "leave the bitmap as-is".
   final bool clearCustomIcon;
 
+  /// New bitmap loaded through the host hook; `null` leaves the entry bitmap as-is.
+  final String? customIconBase64;
+
   /// Whether the system back button should return to the launcher tab after
   /// this tile's action.
   final bool returnToLauncherOnBack;
@@ -62,6 +65,7 @@ class LauncherTileEditResult {
     required this.fontColor,
     required this.iconColor,
     this.clearCustomIcon = false,
+    this.customIconBase64,
     this.returnToLauncherOnBack = true,
     this.pinned = false,
     this.folderPath,
@@ -83,6 +87,7 @@ class LauncherTileEditResult {
       folderPath: folderPath,
       filePath: filePath,
       extras: extras,
+      customIconBase64: customIconBase64,
     );
     final updated = clearCustomIcon
         ? LauncherEntry(
