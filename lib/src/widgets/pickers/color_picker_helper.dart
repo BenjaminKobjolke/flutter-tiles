@@ -17,6 +17,25 @@ typedef ColorPickerMessageCallback =
 /// pattern. Includes copy/paste hex color support with full alpha
 /// (transparency) handling via the package's `colorToHex`/`colorFromHex`.
 class ColorPickerHelper {
+  /// Shows the picker and applies a selected color while [context] is mounted.
+  static Future<void> pickAndApply(
+    BuildContext context, {
+    required String title,
+    required Color initialColor,
+    required LauncherStrings strings,
+    ColorPickerMessageCallback? onMessage,
+    required ValueChanged<Color> onPicked,
+  }) async {
+    final color = await showColorPicker(
+      context,
+      title: title,
+      initialColor: initialColor,
+      strings: strings,
+      onMessage: onMessage,
+    );
+    if (color != null && context.mounted) onPicked(color);
+  }
+
   /// Shows a color picker dialog and returns the selected color,
   /// or `null` if the user cancelled.
   ///

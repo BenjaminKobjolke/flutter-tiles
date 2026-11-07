@@ -33,6 +33,25 @@ class LauncherFolderPick {
 class LauncherFolderPickerDialog {
   LauncherFolderPickerDialog._();
 
+  /// Shows the picker and applies the result while [context] is mounted.
+  static Future<void> showAndApply(
+    BuildContext context, {
+    required List<LauncherEntry> allEntries,
+    required LauncherStrings strings,
+    Color? highlightColor,
+    String? excludeFolderId,
+    required ValueChanged<LauncherFolderPick> onPicked,
+  }) async {
+    final pick = await show(
+      context,
+      allEntries: allEntries,
+      excludeFolderId: excludeFolderId,
+      strings: strings,
+      highlightColor: highlightColor,
+    );
+    if (pick != null && context.mounted) onPicked(pick);
+  }
+
   /// Shows the picker over [allEntries]. Returns the chosen destination, or
   /// `null` if dismissed. [excludeFolderId] hides that folder and its
   /// descendants from the offered destinations.
