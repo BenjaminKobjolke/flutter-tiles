@@ -15,10 +15,10 @@
   "silent_test_scan_reported": [],
   "analysis_command_states": {
     "tools\\run_tests.bat": {
-      "test": "green"
+      "test": "failed"
     },
     "tools\\run_integration_tests.bat": {
-      "test": "green"
+      "test": "failed"
     },
     "tools\\analyze_changed_and_new_files.bat": {
       "code_quality": "green"
@@ -48,5 +48,30 @@
     "tests": true
   },
   "analysis_code_quality_answered": true,
-  "project_id": 12319
+  "project_id": 12319,
+  "analysis_command_failing_tests": {
+    "tools\\run_tests.bat": [
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/cubit/launcher_cubit_reload_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/cubit/launcher_cubit_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/models/launcher_entry_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/models/launcher_sort_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/store/launcher_store_compat_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/store/launcher_store_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/utils/launcher_filter_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/utils/launcher_icon_decoder_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/utils/launcher_tree_helper_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/editor/launcher_custom_icon_source_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/editor/launcher_tile_edit_result_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/editor/launcher_tile_edit_screen_config_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/editor/launcher_tile_edit_screen_leave_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/launcher_reorder_grid_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/launcher_tile_widget_a11y_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/launcher_tile_widget_subtitle_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/pickers/color_picker_helper_test.dart",
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/widgets/pickers/launcher_folder_picker_dialog_test.dart"
+    ],
+    "tools\\run_integration_tests.bat": [
+      "loading D:/GIT/BenjaminKobjolke/flutter-tiles/test/integration/launcher_view_test.dart"
+    ]
+  }
 }
